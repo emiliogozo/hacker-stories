@@ -118,8 +118,10 @@ const App = () => {
     setSearchTerm(event.target.value);
   };
 
-  const handleSearchSubmit = () => {
+  const handleSearchSubmit = event => {
     setUrl(`${API_ENDPOINT}${searchTerm}`);
+
+    event.preventDefault();
   };
 
   // const searchedStories = stories.data.filter(story => 
@@ -130,24 +132,12 @@ const App = () => {
     <div>
       <h1>My Hacker Stories</h1>
 
-      <InputWithLabel
-        id="search"
-        label="Search"
-        value={searchTerm}
-        onInputChange={handleSearchInput}
-        isFocused
-      >
-        <strong>Search:</strong>
-      </InputWithLabel>
-
-      <button
-        type="button"
-        disabled={!searchTerm}
-        onClick={handleSearchSubmit}
-      >
-        Submit
-      </button>
-        
+      <SearchForm
+        searchTerm={searchTerm}
+        onSearchInput={handleSearchInput}
+        onSearchSubmit={handleSearchSubmit}
+      />
+      
       <hr />
 
       {stories.isError && <p>Something went wrong ...</p>}
@@ -160,6 +150,27 @@ const App = () => {
     </div>
   );
 };
+
+const SearchForm = ({
+  searchTerm,
+  onSearchInput,
+  onSearchSubmit,
+}) => (
+  <form onSubmit={onSearchSubmit}>
+    <InputWithLabel
+      id="search"
+      value={searchTerm}
+      isFocused
+      onInputChange={onSearchInput}
+    >
+      <strong>Search:</strong>
+    </InputWithLabel>
+
+    <button type="submit" disabled={!searchTerm}>
+      Submit
+    </button>
+  </form>
+);
 
 const InputWithLabel = ({
   id,
