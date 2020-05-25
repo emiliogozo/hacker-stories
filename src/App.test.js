@@ -1,7 +1,10 @@
 import axios from 'axios';
 import React from 'react';
 import renderer from 'react-test-renderer';
-import App, { InputWithLabel, Item, List, SearchForm } from './App';
+import App from './App';
+import InputWithLabel from './components/InputWithLabel';
+import { Item, List } from './components/List';
+import SearchForm from './components/SearchForm';
 
 
 jest.mock('axios');

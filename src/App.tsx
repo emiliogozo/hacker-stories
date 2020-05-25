@@ -1,35 +1,10 @@
 import axios from 'axios';
 import React from 'react';
-// import './App.css';
 import styles from './App.module.css';
-import { ReactComponent as Check } from './check.svg';
+import { StoriesAction, StoriesState, Story } from './App.types';
+import List from './components/List';
+import SearchForm from './components/SearchForm';
 
-// const initialStories = [
-//   {
-//     title: 'React',
-//     url: 'https://reactjs.org/',
-//     author: 'Jordan Walke',
-//     num_comments: 3,
-//     points: 4,
-//     objectID: 0,
-//   },
-//   {
-//     title: 'Redux',
-//     url: 'https://redux.js.org/',
-//     author: 'Dan Abramov, Andrew Clark',
-//     num_comments: 2,
-//     points: 5,
-//     objectID: 1,
-//   },
-// ];
-
-// const getAsyncStories = () =>
-//   new Promise(resolve =>
-//     setTimeout(
-//       () => resolve({ data: { stories: initialStories } }),
-//       2000
-//     )
-//   );
 
 const useSemiPersistentState = (
   key: string,
@@ -50,41 +25,6 @@ const useSemiPersistentState = (
 
   return [value, setValue];
  };
-
-type StoriesState = {
-  data: Stories;
-  isLoading: boolean;
-  isError: boolean;
-};
-
-// type StoriesAction = {
-//   type: string;
-//   payload: any;
-// };
-
-interface StoriesFetchInitAction {
-  type: 'STORIES_FETCH_INIT';
-}
-
-interface StoriesFetchSuccessAction {
-  type: 'STORIES_FETCH_SUCCESS';
-  payload: Stories;
-}
-
-interface StoriesFetchFailureAction {
-  type: 'STORIES_FETCH_FAILURE';
-}
-
-interface StoriesRemoveAction {
-  type: 'REMOVE_STORY';
-  payload: Story;
-}
-
-type StoriesAction =
-  | StoriesFetchInitAction
-  | StoriesFetchSuccessAction
-  | StoriesFetchFailureAction
-  | StoriesRemoveAction;
 
 const storiesReducer = (
   state: StoriesState,
@@ -114,7 +54,7 @@ const storiesReducer = (
       return {
         ...state,
         data: state.data.filter(
-          story => action.payload.objectID !== story.objectID
+          (story: Story) => action.payload.objectID !== story.objectID
         ),
       };
     default:
@@ -123,13 +63,6 @@ const storiesReducer = (
 };
 
 const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
-
-// const getSumComments = stories => {
-//   return stories.data.reduce(
-//     (result, value) => result + value.num_comments,
-//     0
-//   );
-// };
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useSemiPersistentState('search', 'React');
@@ -182,14 +115,6 @@ const App = () => {
     event.preventDefault();
   };
 
-  // const searchedStories = stories.data.filter(story => 
-  //   story.title.toLowerCase().includes(searchTerm.toLowerCase())
-  // );
-
-  // const sumComments = React.useMemo(() => getSumComments(stories), [
-  //   stories,
-  // ]);
-
   return (
     <div className={styles.container}>
       <h1 className={styles.headlinePrimary}>My Hacker Stories</h1>
@@ -211,134 +136,4 @@ const App = () => {
   );
 };
 
-type SearchFormProps = {
-  searchTerm: string;
-  onSearchInput: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onSearchSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-};
-
-const SearchForm = ({
-  searchTerm,
-  onSearchInput,
-  onSearchSubmit,
-}: SearchFormProps) => (
-  <form className={styles.searchForm} onSubmit={onSearchSubmit}>
-    <InputWithLabel
-      id="search"
-      value={searchTerm}
-      isFocused
-      onInputChange={onSearchInput}
-    >
-      <strong>Search:</strong>
-    </InputWithLabel>
-
-    <button
-      type="submit"
-      disabled={!searchTerm}
-      className={`${styles.button} ${styles.buttonLarge}`}
-    >
-      Submit
-    </button>
-  </form>
-);
-
-type InputWithLabelProps = {
-  id: string;
-  value: string;
-  type?: string;
-  onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  isFocused?: boolean;
-  children: React.ReactNode;
-};
-
-const InputWithLabel = ({
-  id,
-  value,
-  type='text',
-  onInputChange,
-  isFocused,
-  children
-}: InputWithLabelProps) => {
-  const inputRef = React.useRef<HTMLInputElement>(null!);
-
-  React.useEffect(() => {
-    if (isFocused && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [isFocused]);
-
-  return (
-    <>
-      <label htmlFor={id} className={styles.label}>
-        {children}
-      </label>
-      &nbsp;
-      <input
-        ref={inputRef}
-        id={id}
-        className={styles.input}
-        type={type}
-        value={value}
-        onChange={onInputChange}
-      />
-    </>
-  );
-};
-
-
-type Stories = Array<Story>;
-
-type ListProps = {
-  list: Stories;
-  onRemoveItem: (item: Story) => void;
-};
-
-const List = React.memo(
-  ({ list, onRemoveItem }: ListProps) => (
-  <>
-    {list.map(item => (
-      <Item
-        key={item.objectID}
-        item={item}
-        onRemoveItem={onRemoveItem}
-      />
-    ))}
-  </>
-));
-
-type Story = {
-  objectID: string;
-  url: string;
-  title: string;
-  author: string;
-  num_comments: number;
-  points: number;
-};
-
-type ItemProps = {
-  item: Story;
-  onRemoveItem: (item: Story) => void;
-};
-
-const Item = ({ item, onRemoveItem }: ItemProps) => (
-  <div className={styles.item}>
-    <span style={{ width: '40%' }}>
-      <a href={item.url}>{item.title}</a>
-    </span>
-    <span style={{ width: '30%' }}>{item.author}</span>
-    <span style={{ width: '10%' }}>{item.num_comments}</span>
-    <span style={{ width: '10%' }}>{item.points}</span>
-    <span style={{ width: '10%' }}>
-      <button
-        type="button"
-        className={`${styles.button} ${styles.buttonSmall}`}
-        onClick={() => onRemoveItem(item)}
-      >
-        <Check height="18px" width="18px" />
-      </button>
-    </span>
-  </div>
-);
-
 export default App;
-export { SearchForm, InputWithLabel, List, Item };
