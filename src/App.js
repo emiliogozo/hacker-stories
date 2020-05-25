@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React from 'react';
-import './App.css';
+// import './App.css';
+import styles from './App.module.css';
 
 // const initialStories = [
 //   {
@@ -129,8 +130,8 @@ const App = () => {
   // );
 
   return (
-    <div className="container">
-      <h1 className="headline-primary">My Hacker Stories</h1>
+    <div className={styles.container}>
+      <h1 className={styles.headlinePrimary}>My Hacker Stories</h1>
 
       <SearchForm
         searchTerm={searchTerm}
@@ -154,7 +155,7 @@ const SearchForm = ({
   onSearchInput,
   onSearchSubmit,
 }) => (
-  <form className="search-form" onSubmit={onSearchSubmit}>
+  <form className={styles.searchForm} onSubmit={onSearchSubmit}>
     <InputWithLabel
       id="search"
       value={searchTerm}
@@ -167,7 +168,7 @@ const SearchForm = ({
     <button
       type="submit"
       disabled={!searchTerm}
-      className="button button_large"
+      className={`${styles.button} ${styles.buttonLarge}`}
     >
       Submit
     </button>
@@ -193,12 +194,14 @@ const InputWithLabel = ({
 
   return (
     <>
-      <label htmlFor={id} className="label">{children}</label>
+      <label htmlFor={id} className={styles.label}>
+        {children}
+      </label>
       &nbsp;
       <input
         ref={inputRef}
         id={id}
-        className="input"
+        className={styles.input}
         type={type}
         value={value}
         onChange={onInputChange}
@@ -216,7 +219,7 @@ const List = ({ list, onRemoveItem }) =>
   ));
 
 const Item = ({ item, onRemoveItem }) => (
-  <div className="item">
+  <div className={styles.item}>
     <span style={{ width: '40%' }}>
       <a href={item.url}>{item.title}</a>
     </span>
@@ -226,7 +229,7 @@ const Item = ({ item, onRemoveItem }) => (
     <span style={{ width: '10%' }}>
       <button
         type="button"
-        className="button button_small"
+        className={`${styles.button} ${styles.buttonSmall}`}
         onClick={() => onRemoveItem(item)}
       >
         Dismiss
