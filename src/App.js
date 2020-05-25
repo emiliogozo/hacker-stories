@@ -2,6 +2,7 @@ import axios from 'axios';
 import React from 'react';
 // import './App.css';
 import styles from './App.module.css';
+import { ReactComponent as Check } from './check.svg';
 
 // const initialStories = [
 //   {
@@ -232,7 +233,7 @@ const Item = ({ item, onRemoveItem }) => (
         className={`${styles.button} ${styles.buttonSmall}`}
         onClick={() => onRemoveItem(item)}
       >
-        Dismiss
+        <Check height="18px" width="18px" />
       </button>
     </span>
   </div>
