@@ -83,6 +83,13 @@ const storiesReducer = (state, action) => {
 
 const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
 
+const getSumComments = stories => {
+  return stories.data.reduce(
+    (result, value) => result + value.num_comments,
+    0
+  );
+};
+
 const App = () => {
   const [searchTerm, setSearchTerm] = useSemiPersistentState('search', 'React');
 
@@ -134,6 +141,10 @@ const App = () => {
   // const searchedStories = stories.data.filter(story => 
   //   story.title.toLowerCase().includes(searchTerm.toLowerCase())
   // );
+
+  const sumComments = React.useMemo(() => getSumComments(stories), [
+    stories,
+  ]);
 
   return (
     <div className={styles.container}>
