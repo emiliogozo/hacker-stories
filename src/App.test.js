@@ -42,6 +42,11 @@ describe('Item', () => {
     expect(handleRemoveItem).toHaveBeenCalledWith(item);
     expect(component.root.findAllByType(Item).length).toEqual(1);
   });
+
+  test('renders snapshot', () => {
+    let tree = component.toJSON();
+    expect(tree).toMatchSnapshot();
+  });
 });
 
 describe('List', () => {
@@ -174,5 +179,17 @@ describe('App', () => {
     expect(component.root.findByType('p').props.children).toEqual(
       'Something went wrong ...'
     );
+  });
+});
+
+describe('InputWithLabel', () => {
+  test('renders snapshot', () => {
+    const component = renderer.create(
+      <InputWithLabel id="1" value="a">
+        Input with Label
+      </InputWithLabel>
+    );
+    let tree = component.toJSON();
+    expect(tree).toMatchSnapshot();
   });
 });
