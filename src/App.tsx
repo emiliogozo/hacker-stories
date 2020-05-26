@@ -2,9 +2,9 @@ import axios from 'axios';
 import React from 'react';
 import styles from './App.module.css';
 import { StoriesAction, StoriesState, Story } from './App.types';
+import LastSearches from './components/LastSearches';
 import List from './components/List';
 import SearchForm from './components/SearchForm';
-
 
 const useSemiPersistentState = (
   key: string,
@@ -64,12 +64,12 @@ const storiesReducer = (
 
 const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
 
+const getUrl = (searchTerm: string) => `${API_ENDPOINT}${searchTerm}`;
+
 const App = () => {
   const [searchTerm, setSearchTerm] = useSemiPersistentState('search', 'React');
 
-  const [url, setUrl] = React.useState(
-    `${API_ENDPOINT}${searchTerm}`
-  );
+  const [urls, setUrls] = React.useState([getUrl(searchTerm)]);
 
   const [stories, dispatchStories] = React.useReducer(
     storiesReducer,
@@ -78,9 +78,9 @@ const App = () => {
   const handleFetchStories = React.useCallback(async () => {
     dispatchStories({ type: 'STORIES_FETCH_INIT' });
 
-    const result = await axios.get(url);
-
     try {
+      const lastUrl = urls[urls.length - 1];
+      const result = await axios.get(lastUrl);
       dispatchStories({
         type: 'STORIES_FETCH_SUCCESS',
         payload: result.data.hits
@@ -89,7 +89,7 @@ const App = () => {
     catch {
       dispatchStories({ type: 'STORIES_FETCH_FAILURE' });
     }
-  }, [url]);
+  }, [urls]);
 
   React.useEffect(() => {
     handleFetchStories();
@@ -111,9 +111,42 @@ const App = () => {
   const handleSearchSubmit = (
     event: React.FormEvent<HTMLFormElement>
   ) => {
-    setUrl(`${API_ENDPOINT}${searchTerm}`);
+    handleSearch(searchTerm);
     event.preventDefault();
   };
+
+  const extractSearchTerm = (url: string) => url.replace(API_ENDPOINT, '');
+  const getLastSearches = (urls: Array<string>) =>
+    urls
+      .reduce((result: Array<string>, url, index) => {
+        const searchTerm = extractSearchTerm(url);
+
+        if (index === 0) {
+          return result.concat(searchTerm);
+        }
+
+        const previousSearchTerm = result[result.length - 1];
+
+        if (searchTerm === previousSearchTerm) {
+          return result;
+        } else {
+          return result.concat(searchTerm);
+        }
+      }, [])
+      .slice(-6)
+      .slice(0, -1);
+  
+  const handleLastSearch = (searchTerm: string) => {
+    setSearchTerm(searchTerm);
+    handleSearch(searchTerm);
+  };
+
+  const handleSearch = (searchTerm: string) => {
+    const url = getUrl(searchTerm);
+    setUrls(urls.concat(url));
+  };
+
+  const lastSearches = getLastSearches(urls);
 
   return (
     <div className={styles.container}>
@@ -123,6 +156,11 @@ const App = () => {
         searchTerm={searchTerm}
         onSearchInput={handleSearchInput}
         onSearchSubmit={handleSearchSubmit}
+      />
+
+      <LastSearches
+        lastSearches={lastSearches}
+        onLastSearch={handleLastSearch}
       />
 
       {stories.isError && <p>Something went wrong ...</p>}
