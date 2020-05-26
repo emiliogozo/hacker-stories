@@ -11,6 +11,7 @@ export type Stories = Array<Story>;
 
 export type StoriesState = {
   data: Stories;
+  page: number;
   isLoading: boolean;
   isError: boolean;
 };
@@ -21,7 +22,10 @@ export interface StoriesFetchInitAction {
 
 export interface StoriesFetchSuccessAction {
   type: 'STORIES_FETCH_SUCCESS';
-  payload: Stories;
+  payload: {
+    list: Stories;
+    page: number;
+  }
 }
 
 export interface StoriesFetchFailureAction {
